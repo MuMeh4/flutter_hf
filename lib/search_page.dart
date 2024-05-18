@@ -15,43 +15,44 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              margin: const EdgeInsets.only(top: 83, left: 68, right: 68),
-              child: Center(
-                child: RichText(
-                  text: TextSpan(
-                    style: const TextStyle(
-                      fontSize: 42,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFFFFFFFF),
-                    ),
-                    children: [
-                      const TextSpan(
-                        text: 'Search results for\n',
-                      ),
-                      TextSpan(
-                        text: '${widget.searchQuery}...',
-                        style: const TextStyle(
-                          color: Color(0xFF08EBC2),
-                        ),
-                      ),
-                    ],
+      body: Column(
+        children: [
+          Container(
+            margin: const EdgeInsets.only(top: 83, left: 68, right: 68),
+            child: Center(
+              child: RichText(
+                text: TextSpan(
+                  style: const TextStyle(
+                    fontSize: 32,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFFFFFFFF),
                   ),
-                  textAlign: TextAlign.center,
-                )
-              ),
+                  children: [
+                    const TextSpan(
+                      text: 'Search results for\n',
+                    ),
+                    TextSpan(
+                      text: '${widget.searchQuery}...',
+                      style: const TextStyle(
+                        color: Color(0xFF08EBC2),
+                      ),
+                    ),
+                  ],
+                ),
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+              )
             ),
-            ResultsList(searchQuery: widget.searchQuery),
-            BlueButton(
-              onPressed: () {},
-              text: 'See favorites',
-            ),
-          ],
-        ),
+          ),
+          ResultsList(searchQuery: widget.searchQuery),
+          BlueButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/favorites');
+            },
+            text: 'See favorites',
+          ),
+        ],
       ),
       backgroundColor: const Color(0xFF333333),
     );

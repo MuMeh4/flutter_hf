@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hf/home_page.dart';
 import 'package:flutter_hf/search_page.dart';
+import 'package:flutter_hf/favorites_page.dart';
 
-void main() {
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
+Future<void> main() async {
   runApp(const MyApp());
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
 }
 
 class MyApp extends StatelessWidget {
@@ -21,7 +29,6 @@ class MyApp extends StatelessWidget {
       home: const HomePage(),
       routes: {
         '/home': (context) => const HomePage(),
-        '/favorites': (context) => const HomePage(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/search') {
@@ -32,6 +39,13 @@ class MyApp extends StatelessWidget {
               child: SearchPage(searchQuery: searchQuery ?? ''),
             );
             // return const SearchPage();
+          });
+        } else if (settings.name == '/favorites') {
+          return PageRouteBuilder(pageBuilder: (context, animation, secondaryAnimation) {
+            return FadeTransition(
+              opacity: animation,
+              child: const FavoritesPage(),
+            );
           });
         }
         return null;

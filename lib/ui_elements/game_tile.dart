@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hf/models/game.dart';
+import 'package:flutter_hf/online/firestore.dart';
 
-class GameTile extends StatelessWidget {
+class GameTile extends StatefulWidget {
   final Game game;
+  final Function(Game)? onFavoriteChange;
 
-  const GameTile({super.key, required this.game});
+  const GameTile({super.key, required this.game, this.onFavoriteChange});
 
+  @override
+  State<GameTile> createState() => _GameTileState();
+}
+
+class _GameTileState extends State<GameTile> {
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -19,7 +26,7 @@ class GameTile extends StatelessWidget {
       margin: const EdgeInsets.only(top: 6, bottom: 6),
       color: const Color(0xFF5A5A5A),
       child: ListTile(
-        title: Text(game.title,
+        title: Text(widget.game.title,
           style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w600,
@@ -27,7 +34,7 @@ class GameTile extends StatelessWidget {
           ),
         ),
         subtitle: Text(
-          '\$${game.price}',
+          '\$${widget.game.price}',
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w400,
@@ -35,15 +42,49 @@ class GameTile extends StatelessWidget {
           ),
         ),
         trailing: IconButton(
-          icon: const Icon(
-            Icons.stars_rounded,
-            color: Color(0xFF08EBC2),
-            size: 42,
+          icon: SizedBox(
+            width: 40,
+            height: 40,
+            child: Stack(
+              children: [
+                Align(
+                  alignment: Alignment.center,
+                  child: Icon(
+                    widget.game.isFavorite ? Icons.circle : Icons.circle_outlined,
+                    color: const Color(0xFF08EBC2),
+                    size: 40,
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.center,
+                  child: Icon(
+                    Icons.star,
+                    color: widget.game.isFavorite ? const Color(0xFF5A5A5A) : const Color(0xFF08EBC2),
+                    size: 24,
+                  ),
+                ),
+              ],
+            ),
           ),
-          onPressed: () {},
+          onPressed: () {
+            setState(() {
+              toggleFavorite().whenComplete(() {
+                widget.game.isFavorite = !widget.game.isFavorite;
+                widget.onFavoriteChange?.call(widget.game);
+              });
+            });
+          },
         ),
         contentPadding: const EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 0),
       ),
     );
+  }
+
+  Future<void> toggleFavorite() async {
+    if (widget.game.isFavorite) {
+      FirestoreService.removeFavorite("user1", widget.game.id);
+    } else {
+      FirestoreService.addFavorite("user1", widget.game.id);
+    }
   }
 }
