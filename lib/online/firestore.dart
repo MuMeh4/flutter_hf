@@ -1,4 +1,9 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:http/http.dart' as http;
+
+import '../models/game.dart';
 
 class FirestoreService {
   static final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -31,11 +36,23 @@ class FirestoreService {
     }
   }
 
-  static Future<List<int>> getFavorites(String userId) async {
+  static Future<List<Game>> getFavorites(String userId) async {
     final doc = await _db.collection('users').doc(userId).get();
     if (doc.exists) {
       final data = doc.data() as Map<String, dynamic>;
-      return List<int>.from(data['favorites']);
+      List<Game> games = [];
+      final favorites = data['favorites'] as List<dynamic>;
+      for (int gameId in favorites) {
+        final result = await http.get(Uri.parse('https://www.cheapshark.com/api/1.0/games?id=$gameId'));
+        if (result.statusCode == 200) {
+          final jsonData = json.decode(result.body);
+          var game = Game.fromJson(jsonData);
+          game.id = gameId;
+          game.isFavorite = true;
+          games.add(game);
+        }
+      }
+      return games;
     } else {
       return [];
     }

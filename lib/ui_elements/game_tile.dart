@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hf/models/game.dart';
+import 'package:flutter_hf/models/favorite_list_provider.dart';
 import 'package:flutter_hf/online/firestore.dart';
+import 'package:provider/provider.dart';
 
 class GameTile extends StatefulWidget {
   final Game game;
@@ -68,10 +70,7 @@ class _GameTileState extends State<GameTile> {
           ),
           onPressed: () {
             setState(() {
-              toggleFavorite().whenComplete(() {
-                widget.game.isFavorite = !widget.game.isFavorite;
-                widget.onFavoriteChange?.call(widget.game);
-              });
+              toggleFavorite();
             });
           },
         ),
@@ -80,11 +79,12 @@ class _GameTileState extends State<GameTile> {
     );
   }
 
-  Future<void> toggleFavorite() async {
+  void toggleFavorite() {
     if (widget.game.isFavorite) {
-      FirestoreService.removeFavorite("user1", widget.game.id);
+      context.read<FavoriteListProvider>().removeFavorite(widget.game);
     } else {
-      FirestoreService.addFavorite("user1", widget.game.id);
+      context.read<FavoriteListProvider>().addFavorite(widget.game);
     }
+    widget.game.isFavorite = !widget.game.isFavorite;
   }
 }

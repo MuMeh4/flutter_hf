@@ -18,7 +18,7 @@ class _SearchPageState extends State<SearchPage> {
       body: Column(
         children: [
           Container(
-            margin: const EdgeInsets.only(top: 83, left: 68, right: 68),
+            margin: const EdgeInsets.only(top: 83, left: 68, right: 68, bottom: 24),
             child: Center(
               child: RichText(
                 text: TextSpan(

@@ -12,6 +12,30 @@ class _HomePageState extends State<HomePage> {
   String searchQuery = '';
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Welcome to the Game Finder!'),
+            content: const Text('Search for a game title to get started.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
@@ -75,7 +99,7 @@ class _HomePageState extends State<HomePage> {
             ),
             const Padding(padding: EdgeInsets.only(top: 154)),
             BlueButton(text: 'Let\'s go', onPressed: () {
-              Navigator.pushNamed(context, '/search', arguments: searchQuery);
+              Navigator.pushNamed(context, '/search', arguments: searchQuery.trim());
             }),
             WhiteButton(text: 'Favorites', onPressed: () {
               Navigator.pushNamed(context, '/favorites');
