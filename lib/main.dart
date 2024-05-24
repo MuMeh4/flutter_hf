@@ -10,11 +10,11 @@ import 'package:provider/provider.dart';
 import 'models/favorite_list_provider.dart';
 
 Future<void> main() async {
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {

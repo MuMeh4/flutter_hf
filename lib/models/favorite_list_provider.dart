@@ -2,15 +2,33 @@ import 'package:flutter_hf/models/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hf/online/firestore.dart';
 
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 class FavoriteListProvider extends ChangeNotifier {
   List<Game> _games = [];
   get games => _games;
 
   FavoriteListProvider() {
-    FirestoreService.getFavorites("user1").then((value) {
-      _games = value;
-      notifyListeners();
-    });
+    init();
+  }
+
+  Future<void> init() async {
+    _games  = await FirestoreService.getFavorites("user1");
+  }
+
+  Future<Game?> getGameOnSale() async {
+    for (Game game in _games) {
+      var uri = Uri.encodeFull('https://www.cheapshark.com/api/1.0/deals?title=${game.title}&exact=1&onSale=1');
+      var request = await http.get(Uri.parse(uri));
+      if (request.statusCode == 200) {
+        var jsonData = json.decode(request.body);
+        if (jsonData.length > 0) {
+          return game;
+        }
+      }
+    }
+    return null;
   }
 
   void addFavorite(Game game) {

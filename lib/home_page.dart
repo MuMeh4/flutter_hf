@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_hf/ui_elements/buttons.dart';
+import 'package:provider/provider.dart';
+
+import 'models/favorite_list_provider.dart';
+import 'models/game.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -15,20 +20,72 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await showDialog(
+      await context.read<FavoriteListProvider>().init();
+      return showDialog(
         context: context,
         builder: (context) {
-          return AlertDialog(
-            title: const Text('Welcome to the Game Finder!'),
-            content: const Text('Search for a game title to get started.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('OK'),
-              ),
-            ],
+          return FutureBuilder<Game?>(
+            future: context.read<FavoriteListProvider>().getGameOnSale(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const SizedBox.shrink();
+              }
+              var game = snapshot.data!;
+              return AlertDialog(
+                title: Container(
+                  alignment: Alignment.centerRight,
+                  child: IconButton(
+                    icon: const Icon(Icons.close),
+                    style: ButtonStyle(
+                      iconSize: MaterialStateProperty.resolveWith((states) {
+                        return 40;
+                      }),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+                content: RichText(
+                  text: TextSpan(
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF333333),
+
+                    ),
+                    children: [
+                      const TextSpan(
+                        text: 'Your favorited game, ',
+                      ),
+                      TextSpan(
+                        text: game.title,
+                        style: const TextStyle(
+                          color: Color(0xFF08EBC2),
+                        ),
+                      ),
+                      const TextSpan(
+                        text: ' is on sale!',
+                      ),
+                    ],
+                  ),
+                ),
+                actions: [
+                  BlueButton(text: 'See deal', onPressed: () {
+                    Navigator.pushNamed(context, '/search', arguments: game.title);
+                  }),
+                  GrayButton(text: 'Go to search', onPressed: () {
+                    Navigator.pop(context);
+                  }),
+                ],
+                backgroundColor: const Color(0xFFFFFFFF),
+                alignment: Alignment.center,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(26),
+                ),
+              );
+            },
           );
         },
       );
